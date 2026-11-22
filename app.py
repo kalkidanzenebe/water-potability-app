@@ -4,18 +4,18 @@ import pandas as pd
 import joblib
 from pathlib import Path
 
-# =====================================
+# ==========================================
 # PAGE CONFIGURATION
-# =====================================
+# ==========================================
 st.set_page_config(
     page_title="Water Quality Analyzer",
     page_icon="💧",
     layout="wide"
 )
 
-# =====================================
-# BLACK AND GOLD DESIGN
-# =====================================
+# ==========================================
+# CUSTOM BLACK AND GOLD DESIGN
+# ==========================================
 st.markdown("""
 <style>
     .stApp {
@@ -28,29 +28,31 @@ st.markdown("""
     }
 
     .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 1200px;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        max-width: 1250px;
     }
 
     .main-title {
         background: linear-gradient(120deg, #171717, #353020);
         border: 1px solid #D4AF37;
-        padding: 35px 20px;
-        border-radius: 18px;
+        padding: 22px 15px;
+        border-radius: 16px;
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 15px;
     }
 
     .main-title h1 {
         color: #D4AF37;
-        font-size: 38px;
+        font-size: 34px;
         font-weight: 800;
+        margin-bottom: 5px;
     }
 
     .main-title p {
         color: #F5F5F5;
-        font-size: 16px;
+        font-size: 15px;
+        margin-bottom: 0;
     }
 
     h2, h3 {
@@ -63,7 +65,7 @@ st.markdown("""
 
     [data-testid="stNumberInput"] input {
         background-color: #252525;
-        color: #F5F5F5;
+        color: #F5F5F5 !important;
         border: 1px solid #D4AF37;
         border-radius: 8px;
     }
@@ -74,73 +76,77 @@ st.markdown("""
         border: 1px solid #D4AF37;
     }
 
-    div.stButton > button,
+    [data-testid="stNumberInput"] label {
+        color: #D4AF37 !important;
+        font-weight: 600;
+    }
+
     div[data-testid="stFormSubmitButton"] > button {
         background-color: #D4AF37;
         color: #111111;
         border: none;
         border-radius: 10px;
-        padding: 13px 20px;
-        font-size: 17px;
+        min-height: 45px;
+        font-size: 16px;
         font-weight: 800;
         width: 100%;
-        transition: 0.3s;
     }
 
-    div.stButton > button:hover,
     div[data-testid="stFormSubmitButton"] > button:hover {
         background-color: #F0D36B;
         color: #111111;
-        border: none;
+    }
+
+    [data-testid="stForm"] {
+        background-color: #191919;
+        padding: 12px 18px;
+        border: 1px solid #444444;
+        border-radius: 15px;
     }
 
     .result-card {
         background-color: #252525;
         border: 1px solid #D4AF37;
         border-radius: 15px;
-        padding: 30px;
+        padding: 20px;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 8px;
     }
 
     .result-card h2 {
-        font-size: 30px;
-        margin-bottom: 10px;
+        font-size: 28px;
+        margin-bottom: 8px;
     }
 
     .result-card p {
         color: #F5F5F5;
-        font-size: 16px;
-    }
-
-    hr {
-        border-color: #D4AF37;
-    }
-
-    [data-testid="stForm"] {
-        background-color: #191919;
-        padding: 20px;
-        border: 1px solid #444444;
-        border-radius: 15px;
+        font-size: 15px;
+        margin-bottom: 0;
     }
 
     .footer {
         text-align: center;
         color: #D4AF37;
-        padding: 20px;
-        font-size: 13px;
+        padding: 12px;
+        font-size: 12px;
+    }
+
+    hr {
+        border-color: #D4AF37;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================
+
+# ==========================================
 # LOAD TRAINED MODEL
-# =====================================
+# ==========================================
 current_folder = Path(__file__).resolve().parent
 
 possible_model_paths = [
     current_folder / "final_water_potability_model.pkl",
     current_folder / "../models/final_water_potability_model.pkl",
+    current_folder / "models/final_water_potability_model.pkl",
     Path.cwd() / "final_water_potability_model.pkl"
 ]
 
@@ -162,9 +168,10 @@ except Exception as error:
     st.error(f"Could not load model: {error}")
     st.stop()
 
-# =====================================
+
+# ==========================================
 # HEADER
-# =====================================
+# ==========================================
 st.markdown("""
 <div class="main-title">
     <h1>💧 WATER QUALITY ANALYZER</h1>
@@ -172,22 +179,21 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# =====================================
-# INTRODUCTION
-# =====================================
-st.markdown("## Enter Water Measurements")
+
+# ==========================================
+# INPUT SECTION
+# ==========================================
+st.markdown("### Enter Water Quality Measurements")
 
 st.write(
-    "Enter the nine water-quality measurements below "
+    "Provide the nine water-quality measurements "
     "to generate a machine learning prediction."
 )
 
-# =====================================
+# ==========================================
 # INPUT FORM
-# =====================================
+# ==========================================
 with st.form("water_prediction_form"):
-
-    st.markdown("### Water Quality Parameters")
 
     col1, col2, col3 = st.columns(3)
 
@@ -195,22 +201,23 @@ with st.form("water_prediction_form"):
         ph = st.number_input(
             "pH",
             min_value=0.0,
+            max_value=14.0,
             value=7.0,
-            format="%.2f"
+            step=0.1
         )
 
         hardness = st.number_input(
             "Hardness",
             min_value=0.0,
             value=200.0,
-            format="%.2f"
+            step=1.0
         )
 
         solids = st.number_input(
             "Solids",
             min_value=0.0,
             value=20000.0,
-            format="%.2f"
+            step=100.0
         )
 
     with col2:
@@ -218,21 +225,21 @@ with st.form("water_prediction_form"):
             "Chloramines",
             min_value=0.0,
             value=7.0,
-            format="%.2f"
+            step=0.1
         )
 
         sulfate = st.number_input(
             "Sulfate",
             min_value=0.0,
             value=300.0,
-            format="%.2f"
+            step=1.0
         )
 
         conductivity = st.number_input(
             "Conductivity",
             min_value=0.0,
             value=400.0,
-            format="%.2f"
+            step=1.0
         )
 
     with col3:
@@ -240,30 +247,33 @@ with st.form("water_prediction_form"):
             "Organic Carbon",
             min_value=0.0,
             value=10.0,
-            format="%.2f"
+            step=0.1
         )
 
         trihalomethanes = st.number_input(
             "Trihalomethanes",
             min_value=0.0,
             value=60.0,
-            format="%.2f"
+            step=0.1
         )
 
         turbidity = st.number_input(
             "Turbidity",
             min_value=0.0,
             value=4.0,
-            format="%.2f"
+            step=0.1
         )
 
     submitted = st.form_submit_button(
-        "💧 ANALYZE WATER SAMPLE"
+        "💧 ANALYZE WATER SAMPLE",
+        use_container_width=True
     )
 
-# =====================================
-# PREDICTION
-# =====================================
+
+# ==========================================
+# PREDICTION RESULT
+# Displayed immediately after the form
+# ==========================================
 if submitted:
 
     input_data = pd.DataFrame([{
@@ -282,7 +292,7 @@ if submitted:
         prediction = model.predict(input_data)[0]
 
         st.markdown("---")
-        st.markdown("## Prediction Result")
+        st.markdown("### Prediction Result")
 
         if int(prediction) == 1:
 
@@ -313,9 +323,10 @@ if submitted:
     except Exception as error:
         st.error(f"Prediction failed: {error}")
 
-# =====================================
+
+# ==========================================
 # FOOTER
-# =====================================
+# ==========================================
 st.markdown("""
 <hr>
 <div class="footer">
