@@ -3,8 +3,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-model_path = "/content/drive/MyDrive/Machine_Learning_Assignment/02_Water_Potability_Classification/models/final_water_potability_model.pkl"
-
+model_path = "final_water_potability_model.pkl"
 model = joblib.load(model_path)
 
 st.title("Water Potability Prediction")
